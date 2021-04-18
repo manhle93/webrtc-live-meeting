@@ -1,40 +1,26 @@
 <template>
-  <v-app-bar app color="primary" dark>
+  <v-app-bar elevation="1">
     <div class="d-flex align-center">
-      <v-img
-        alt="Vuetify Logo"
-        class="shrink mr-2"
-        contain
-        src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-        transition="scale-transition"
-        width="40"
-      />
-
-      <v-img
-        alt="Vuetify Name"
-        class="shrink mt-1 hidden-sm-and-down"
-        contain
-        min-width="100"
-        src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-        width="100"
-      />
+      <v-btn icon @click="toggleSidbar">
+        <v-icon size="38">mdi-menu</v-icon>
+      </v-btn>
     </div>
 
     <v-spacer></v-spacer>
-
-    <v-btn
-      href="https://github.com/vuetifyjs/vuetify/releases/latest"
-      target="_blank"
-      text
-    >
-      <span class="mr-2">Latest Release</span>
-      <v-icon>mdi-open-in-new</v-icon>
-    </v-btn>
+      <v-avatar>
+        <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
+      </v-avatar>
   </v-app-bar>
 </template>
 
 <script>
-export default {};
+export default {
+  methods: {
+    toggleSidbar(){
+      this.$store.dispatch('sidebar/toggleSidbar')
+    }
+  }
+};
 </script>
 
 <style>

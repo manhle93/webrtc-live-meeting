@@ -1,31 +1,39 @@
 <template>
-  <v-card height="100vh">
-    <v-navigation-drawer permanent :mini-variant.sync="mini">
-      <v-list-item>
+  <v-navigation-drawer permanent :mini-variant.sync="mini" width="260px">
+    <v-list-item>
+      <v-list-item-content>
+        <v-list-item-title class="title"> Application </v-list-item-title>
+        <v-list-item-subtitle> subtext </v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+
+    <v-divider></v-divider>
+
+    <v-list dense nav>
+      <v-list-item
+        v-for="item in items"
+        :key="item.title"
+        link
+        @click="mini = !mini"
+      >
+        <v-list-item-icon>
+          <v-icon>{{ item.icon }}</v-icon>
+        </v-list-item-icon>
+
         <v-list-item-content>
-          <v-list-item-title class="title"> Application </v-list-item-title>
-          <v-list-item-subtitle> subtext </v-list-item-subtitle>
+          <v-list-item-title>{{ item.title }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-
-      <v-divider></v-divider>
-
-      <v-list dense nav>
-        <v-list-item v-for="item in items" :key="item.title" link @click="mini = !mini">
-          <v-list-item-icon>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-icon>
-
-          <v-list-item-content>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-  </v-card>
+    </v-list>
+  </v-navigation-drawer>
 </template>
 <script>
 export default {
+  computed: {
+    mini() {
+      return this.$store.state.sidebar.miniSidebar;
+    },
+  },
   data() {
     return {
       items: [
@@ -34,7 +42,6 @@ export default {
         { title: "About", icon: "mdi-help-box" },
       ],
       right: null,
-      mini: false
     };
   },
 };

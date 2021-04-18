@@ -1,19 +1,14 @@
-<template>
+<template v-slot:body>
   <v-container>
-    <Sidebar />
+    <h2>dsadasdasdasdadas</h2>
   </v-container>
 </template>
 
 <script>
-import Sidebar from '../../components/Sidebar/Sidebar'
 export default {
-  components: {
-    Sidebar
-  }
-
-}
+  components: {},
+};
 </script>
 
 <style>
-
 </style>
