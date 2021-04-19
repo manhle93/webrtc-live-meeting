@@ -31,20 +31,19 @@ export default {
   }),
   mounted() {
     this.onErrConectSocket();
-    this.onConnected()
+    this.onConnected();
   },
 
   methods: {
     login() {
       this.usernameAlreadySelected = true;
-      socket.auth = { username: this.username };
+      socket.auth = { username: this.username,  fullName: this.fullName,};
       socket.connect();
     },
     onErrConectSocket() {
       socket.on("connect_error", (err) => {
         if (err.message === "invalid username") {
           this.usernameAlreadySelected = false;
-          console.log(err.message);
           this.$toast.info("Tên đăng nhập không thể bỏ trống", {
             position: "top-center",
             timeout: 2000,
@@ -62,7 +61,15 @@ export default {
     },
     onConnected() {
       socket.on("connect", () => {
-          this.$router.push('/')
+        socket.on("users", (data) => {
+          this.$store.dispatch("users/setUsers", data);
+        });
+
+        this.$store.dispatch("users/setMe", {
+          username: this.username,
+          fullName: this.fullName,
+        });
+        this.$router.push("/");
       });
     },
   },

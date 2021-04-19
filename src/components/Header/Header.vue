@@ -7,19 +7,26 @@
     </div>
 
     <v-spacer></v-spacer>
-      <v-avatar>
-        <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
-      </v-avatar>
+    <v-avatar color="green">
+      <span class="white--text headline">{{ME.fullName ? ME.fullName[0]: ""}}</span>
+    </v-avatar>
+    <span class="ml-4" style="font-size: 24px; color: black;">{{ME.fullName}}</span>
   </v-app-bar>
 </template>
 
 <script>
 export default {
+  data: () => ({}),
+  computed: {
+    ME() {
+      return this.$store.state.users.me;
+    },
+  },
   methods: {
-    toggleSidbar(){
-      this.$store.dispatch('sidebar/toggleSidbar')
-    }
-  }
+    toggleSidbar() {
+      this.$store.dispatch("sidebar/toggleSidbar");
+    },
+  },
 };
 </script>
 

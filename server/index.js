@@ -6,11 +6,12 @@ const io = require("socket.io")(httpServer, {
 });
 
 io.use((socket, next) => {
-  const username = socket.handshake.auth.username;
+  const {username, fullName} = socket.handshake.auth;
   if (!username) {
     return next(new Error("invalid username"));
   }
   socket.username = username;
+  socket.fullName = fullName
   next();
 });
 
@@ -21,9 +22,16 @@ io.on("connection", (socket) => {
     users.push({
       userID: id,
       username: socket.username,
+      fullName: socket.fullName
     });
   }
   socket.emit("users", users);
+
+  socket.broadcast.emit("user connected", {
+    userID: socket.id,
+    username: socket.username,
+    fullName: socket.fullName
+  });
   // ...
 });
 
