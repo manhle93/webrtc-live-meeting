@@ -64,7 +64,6 @@ export default {
         socket.on("users", (data) => {
           this.$store.dispatch("users/setUsers", data);
         });
-
         this.$store.dispatch("users/setMe", {
           username: this.username,
           fullName: this.fullName,

@@ -11,7 +11,12 @@
 
     <v-list subheader two-line nav dense>
       <v-list-item-group v-model="selectedItem" color="primary">
-        <v-list-item v-for="item in USERS" :key="item.title" class="mt-3">
+        <v-list-item
+          v-for="item in USERS"
+          :key="item.title"
+          class="mt-3"
+          @click="selectUser(item)"
+        >
           <v-avatar color="#01579B" size="45" class="mr-2">
             <span class="white--text headline">{{
               item.fullName ? item.fullName[0] : ""
@@ -55,13 +60,14 @@ export default {
   },
   mounted() {
     this.getUsers();
+    this.statusUser();
+          
   },
   methods: {
-    getUsers() {
+   async getUsers() {
       socket.on("user connected", (data) => {
-        let users = this.USERS ? this.USERS : [];
-        users.push(data);
-        this.USERS = users;
+        this.USERS.push(data)
+        this.$store.dispatch("users/setUsers",this.USERS)
         this.$toast.info(data.fullName + "Đã tham gia kênh chat", {
           position: "top-center",
           timeout: 2000,
@@ -75,6 +81,26 @@ export default {
           icon: true,
         });
       });
+    },
+    statusUser() {
+      // socket.on("connect", () => {
+      //   this.USERS.forEach((user) => {
+      //     console.log(user)
+      //     if (user.self) {
+      //       user.connected = true;
+      //     }
+      //   });
+      // });
+      // socket.on("disconnect", () => {
+      //   this.USERS.forEach((user) => {
+      //     if (user.self) {
+      //       user.connected = false;
+      //     }
+      //   });
+      // });
+    },
+    selectUser(data) {
+      this.$store.dispatch("users/setSelectUser", data);
     },
   },
 };

@@ -1,7 +1,10 @@
 const state = {
     me: {},
-    usernameAlreadySelected: false,
-    users: {}
+    users: [],
+    selectedUser: {
+        user: {},
+        message: []
+    }
 }
 
 const mutations = {
@@ -9,7 +12,13 @@ const mutations = {
         state.me = data
     },
     SET_USERS: (state, data) => {
-        state.users = data
+        state.users =  data 
+    }, 
+    SET_SELECT_USER: (state, data) => {
+        state.selectedUser.user = data
+    }, 
+    SET_MESSAGE_USER_SELECT: (state, data) => {
+        state.selectedUser.message.push(data) 
     }
 }
 
@@ -19,6 +28,12 @@ const actions = {
     },
     setUsers({commit}, data){
         commit('SET_USERS', data)
+    },
+    setSelectUser({commit}, data){
+        commit('SET_SELECT_USER', data)
+    },
+    setSelectUserMessage({commit}, data){
+        commit('SET_MESSAGE_USER_SELECT', data)
     }
 }
 

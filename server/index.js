@@ -6,7 +6,7 @@ const io = require("socket.io")(httpServer, {
 });
 
 io.use((socket, next) => {
-  const {username, fullName} = socket.handshake.auth;
+  const { username, fullName } = socket.handshake.auth;
   if (!username) {
     return next(new Error("invalid username"));
   }
@@ -26,12 +26,18 @@ io.on("connection", (socket) => {
     });
   }
   socket.emit("users", users);
-
   socket.broadcast.emit("user connected", {
     userID: socket.id,
     username: socket.username,
     fullName: socket.fullName
   });
+
+  socket.on('private message', data => {
+    socket.to(data.to).emit('private message', { content: data.content, from: socket.id })
+  })
+
+
+
   // ...
 });
 
