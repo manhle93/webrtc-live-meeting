@@ -25,11 +25,18 @@
 
           <v-list-item-content>
             <v-list-item-title>{{ item.fullName }}</v-list-item-title>
-            <v-list-item-subtitle>{{ item.username }}</v-list-item-subtitle>
+            <v-list-item-subtitle>
+              <v-chip
+                :color="item.connected ? 'success' : 'pink'"
+                x-small
+                dark
+                >{{ item.connected ? "Online" : "Offline" }}</v-chip
+              ></v-list-item-subtitle
+            >
           </v-list-item-content>
           <v-list-item-action>
-            <v-btn icon>
-              <v-icon color="grey lighten-1">mdi-information</v-icon>
+            <v-btn icon color="pink" v-if="item.hasNewMessages">
+              <v-icon>mdi-alert-circle</v-icon>
             </v-btn>
           </v-list-item-action>
         </v-list-item>
@@ -43,6 +50,7 @@ export default {
   data() {
     return {
       selectedItem: null,
+      messages: [],
     };
   },
   computed: {
@@ -57,17 +65,21 @@ export default {
         return value;
       },
     },
+    selectedUser() {
+      return this.$store.state.users.selectedUser;
+    },
   },
-  mounted() {
+  created() {
     this.getUsers();
     this.statusUser();
-          
+    this.receiveMessage();
   },
   methods: {
-   async getUsers() {
+    async getUsers() {
       socket.on("user connected", (data) => {
-        this.USERS.push(data)
-        this.$store.dispatch("users/setUsers",this.USERS)
+        this.initReactiveProperties(data);
+        this.USERS.push(data);
+        this.$store.dispatch("users/setUsers", this.USERS);
         this.$toast.info(data.fullName + "Đã tham gia kênh chat", {
           position: "top-center",
           timeout: 2000,
@@ -83,25 +95,57 @@ export default {
       });
     },
     statusUser() {
-      // socket.on("connect", () => {
-      //   this.USERS.forEach((user) => {
-      //     console.log(user)
-      //     if (user.self) {
-      //       user.connected = true;
-      //     }
-      //   });
-      // });
-      // socket.on("disconnect", () => {
-      //   this.USERS.forEach((user) => {
-      //     if (user.self) {
-      //       user.connected = false;
-      //     }
-      //   });
-      // });
+      socket.on("user disconnected", (id) => {
+        console.log("dis", id);
+        for (let i = 0; i < this.USERS.length; i++) {
+          const user = this.USERS[i];
+          if (user.userID === id) {
+            user.connected = false;
+            break;
+          }
+        }
+      });
     },
     selectUser(data) {
-      this.$store.dispatch("users/setSelectUser", data);
+      this.USERS.forEach((el) => {
+        if (el.userID == data.userID) {
+          this.$store.dispatch("users/setSelectUser", data);
+          this.$store.dispatch("users/setSelectUserMessage", el.messages);
+          el.hasNewMessages = false
+        }
+      });
     },
+    initReactiveProperties(user) {
+      user.connected = true;
+      user.messages = [];
+      user.hasNewMessages = false;
+    },
+    receiveMessage() {
+      socket.on("private message", (data) => {
+        let messages = [];
+        this.USERS.forEach((el) => {
+          if (el.userID == data.from) {
+            el.messages.push(data);
+            let hasNewMessages =
+              !(this.selectedUser.user.userID === data.from)
+            messages = el.messages;
+            el.hasNewMessages = hasNewMessages
+          }
+        });
+        this.$store.dispatch("users/setUsers", this.USERS);
+        if (this.selectedUser.user.userID) {
+          this.$store.dispatch("users/setSelectUserMessage", messages);
+        }
+      });
+    },
+  },
+  destroyed() {
+    socket.off("connect");
+    socket.off("disconnect");
+    socket.off("users");
+    socket.off("user connected");
+    socket.off("user disconnected");
+    socket.off("private message");
   },
 };
 </script>

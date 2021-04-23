@@ -31,8 +31,12 @@ io.on("connection", (socket) => {
     username: socket.username,
     fullName: socket.fullName
   });
+  socket.on("disconnect", () => {
+    socket.broadcast.emit("user disconnected", socket.id);
+  });
 
   socket.on('private message', data => {
+    console.log(data.to)
     socket.to(data.to).emit('private message', { content: data.content, from: socket.id })
   })
 

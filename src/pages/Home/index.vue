@@ -15,7 +15,11 @@
       <v-spacer></v-spacer>
       <v-btn dark color="teal" fab small><v-icon>mdi-video</v-icon></v-btn>
     </v-app-bar>
-    <div style="height: 500px"></div>
+    <div style="height: 500px">
+      <div v-for="(item, index) in selectedUser.message" :key="index">
+        <p>{{ item.content }}</p>
+      </div>
+    </div>
     <v-layout align-center v-if="selectedUser.user.userID">
       <v-textarea
         v-model="message"
@@ -39,18 +43,25 @@ import socket from "../../socket";
 export default {
   data: () => ({
     message: "",
+    messages: [],
   }),
   computed: {
     ME() {
       return this.$store.state.users.me;
     },
-    // USERS() {
-    //   return this.$store.state.users.users
-    // },
+    USERS: {
+      get() {
+        return this.$store.state.users.users;
+      },
+      set(value) {
+        return value;
+      },
+    },
     selectedUser() {
       return this.$store.state.users.selectedUser;
     },
   },
+
   mounted() {
     if (!this.ME || !this.ME.username) {
       this.$router.push("/login");
@@ -58,19 +69,19 @@ export default {
   },
   methods: {
     sendMessage() {
-      if (this.message && this.selectedUser.userID) {
+      if (this.message && this.selectedUser.user.userID) {
         socket.emit("private message", {
           content: this.message,
-          to: this.selectedUser.userID,
+          to: this.selectedUser.user.userID,
         });
-        this.$store.dispatch('users/setSelectUserMessage', {content: this.message, fromSelf: true})
+        this.$store.dispatch("users/pushSelectUserMessage", {
+          content: this.message,
+          fromSelf: true,
+        });
       }
     },
-    // receiveMessage(){
-    //   socket.on('private message', data => {
-        
-    //   })
-    // }
+
+    
   },
 };
 </script>

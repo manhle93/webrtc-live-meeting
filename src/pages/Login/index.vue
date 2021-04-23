@@ -37,7 +37,7 @@ export default {
   methods: {
     login() {
       this.usernameAlreadySelected = true;
-      socket.auth = { username: this.username,  fullName: this.fullName,};
+      socket.auth = { username: this.username, fullName: this.fullName };
       socket.connect();
     },
     onErrConectSocket() {
@@ -62,7 +62,14 @@ export default {
     onConnected() {
       socket.on("connect", () => {
         socket.on("users", (data) => {
-          this.$store.dispatch("users/setUsers", data);
+          let users = [];
+          data.forEach((user) => {
+            user.self = user.userID === socket.id;
+            this.initReactiveProperties(user)
+            users.push(user);
+          });
+
+          this.$store.dispatch("users/setUsers", users);
         });
         this.$store.dispatch("users/setMe", {
           username: this.username,
@@ -70,6 +77,12 @@ export default {
         });
         this.$router.push("/");
       });
+    },
+
+    initReactiveProperties(user) {
+      user.connected = true;
+      user.messages = [];
+      user.hasNewMessages = false;
     },
   },
 };
