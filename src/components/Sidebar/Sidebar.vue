@@ -73,6 +73,15 @@ export default {
     this.getUsers();
     this.statusUser();
     this.receiveMessage();
+    const sessionID = localStorage.getItem("sessionID");
+    if (sessionID) {
+      socket.auth = { sessionID };
+      socket.connect();
+    }else {
+      window.location.assign('/login')
+    }
+    this.reconnect();
+    this.onErrConectSocket()
   },
   methods: {
     async getUsers() {
@@ -96,7 +105,6 @@ export default {
     },
     statusUser() {
       socket.on("user disconnected", (id) => {
-        console.log("dis", id);
         for (let i = 0; i < this.USERS.length; i++) {
           const user = this.USERS[i];
           if (user.userID === id) {
@@ -111,7 +119,7 @@ export default {
         if (el.userID == data.userID) {
           this.$store.dispatch("users/setSelectUser", data);
           this.$store.dispatch("users/setSelectUserMessage", el.messages);
-          el.hasNewMessages = false
+          el.hasNewMessages = false;
         }
       });
     },
@@ -126,16 +134,37 @@ export default {
         this.USERS.forEach((el) => {
           if (el.userID == data.from) {
             el.messages.push(data);
-            let hasNewMessages =
-              !(this.selectedUser.user.userID === data.from)
+            let hasNewMessages = !(this.selectedUser.user.userID === data.from);
             messages = el.messages;
-            el.hasNewMessages = hasNewMessages
+            el.hasNewMessages = hasNewMessages;
           }
         });
         this.$store.dispatch("users/setUsers", this.USERS);
         if (this.selectedUser.user.userID) {
           this.$store.dispatch("users/setSelectUserMessage", messages);
         }
+      });
+    },
+    reconnect() {
+      socket.on("connect", () => {
+        socket.on("users", (data) => {
+          let users = [];
+          data.forEach((user) => {
+            user.self = user.userID === socket.id;
+            this.initReactiveProperties(user);
+            users.push(user);
+          });
+          this.$store.dispatch("users/setUsers", users);
+          console.log(22, this.USERS);
+        });
+        const ME = JSON.parse(localStorage.getItem("me"));
+        this.$store.dispatch("users/setMe", ME);
+      });
+    },
+    onErrConectSocket() {
+      socket.on("connect_error", (err) => {
+        console.log(err)
+       window.location.assign('/login')
       });
     },
   },

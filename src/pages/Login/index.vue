@@ -65,15 +65,22 @@ export default {
           let users = [];
           data.forEach((user) => {
             user.self = user.userID === socket.id;
-            this.initReactiveProperties(user)
+            this.initReactiveProperties(user);
             users.push(user);
           });
 
           this.$store.dispatch("users/setUsers", users);
         });
-        this.$store.dispatch("users/setMe", {
+        const ME = {
           username: this.username,
           fullName: this.fullName,
+        }
+        this.$store.dispatch("users/setMe", ME);
+        socket.on("session", ({ sessionID, userID }) => {
+          socket.auth = { sessionID };
+          localStorage.setItem("sessionID", sessionID);
+          localStorage.setItem("me", JSON.stringify(ME));
+          socket.userID = userID;
         });
         this.$router.push("/");
       });

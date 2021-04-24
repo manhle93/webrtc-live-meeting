@@ -62,10 +62,8 @@ export default {
     },
   },
 
-  mounted() {
-    if (!this.ME || !this.ME.username) {
-      this.$router.push("/login");
-    }
+  created() {
+
   },
   methods: {
     sendMessage() {
@@ -80,8 +78,6 @@ export default {
         });
       }
     },
-
-    
   },
 };
 </script>
